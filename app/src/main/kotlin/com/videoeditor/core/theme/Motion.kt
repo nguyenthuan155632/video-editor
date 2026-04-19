@@ -21,8 +21,3 @@ object AuroraMotion {
     const val DURATION_MEDIUM_MS = 250
     const val DURATION_LONG_MS = 400
 }
-
-@Deprecated("Use AuroraMotion", ReplaceWith("AuroraMotion"))
-val MotionSpec = object {
-    val press = AuroraMotion.pressSpring
-}

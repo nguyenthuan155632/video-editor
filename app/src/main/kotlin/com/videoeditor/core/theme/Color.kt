@@ -19,15 +19,3 @@ val AuroraBorder = Color(0xFF2A2540)
 val AuroraSuccess = Color(0xFF34D399)
 val AuroraWarning = Color(0xFFFBBF24)
 val AuroraError = Color(0xFFF87171)
-
-@Deprecated("Replaced by AuroraViolet for theme primary", ReplaceWith("AuroraViolet"))
-val IndigoSeed = AuroraViolet
-
-@Deprecated("Replaced by AuroraCyan for theme tertiary", ReplaceWith("AuroraCyan"))
-val AccentTeal = AuroraCyan
-
-@Deprecated("Light theme is removed", ReplaceWith("AuroraBgBase"))
-val SurfaceLight = AuroraBgBase
-
-@Deprecated("Replaced by AuroraBgBase", ReplaceWith("AuroraBgBase"))
-val SurfaceDark = AuroraBgBase

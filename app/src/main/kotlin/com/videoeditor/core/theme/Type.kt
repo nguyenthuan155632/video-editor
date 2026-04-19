@@ -54,6 +54,3 @@ val AuroraTypography = Typography(
         letterSpacing = 0.1.sp,
     ),
 )
-
-@Deprecated("Use AuroraTypography", ReplaceWith("AuroraTypography"))
-val AppTypography = AuroraTypography
