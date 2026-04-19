@@ -138,7 +138,7 @@ class CompressViewModel @Inject constructor(
     }
 
     fun onCancelEncode() {
-        workLauncher.cleanup()
+        workLauncher.cancel()
         _uiState.update { CompressUiState.Idle }
     }
 
