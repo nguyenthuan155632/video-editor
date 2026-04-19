@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,7 +38,6 @@ import java.text.DecimalFormat
 fun DoneStep(
     output: SavedOutput,
     ratio: Double,
-    onDone: () -> Unit,
 ) {
     val context = LocalContext.current
     val df = DecimalFormat("#.#")
@@ -152,14 +150,6 @@ fun DoneStep(
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Share", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-                Button(
-                    onClick = onDone,
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B6CFF)),
-                ) {
-                    Text("Done", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }

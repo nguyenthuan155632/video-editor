@@ -23,8 +23,7 @@ object CompressModule {
         @ApplicationContext ctx: android.content.Context,
         runner: FFmpegRunner,
         probe: VideoProbe,
-        estimator: OutputSizeEstimator,
         saver: MediaStoreSaver,
         tempDir: ScopedTempDir,
-    ): CompressWorkLauncher = CompressWorkLauncher(ctx, runner, probe, estimator, saver, tempDir)
+    ): CompressWorkLauncher = CompressWorkLauncher(ctx, runner, probe, saver, tempDir)
 }

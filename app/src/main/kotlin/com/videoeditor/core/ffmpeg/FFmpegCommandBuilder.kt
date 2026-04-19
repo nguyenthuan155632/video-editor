@@ -107,7 +107,7 @@ class FFmpegCommandBuilder @Inject constructor() {
                            "-ac", if (settings.audio.channels == AudioChannels.MONO) "1" else "2")
         }
 
-        args += listOf("-movflags", "+faststart", "-progress", "pipe:1", "-nostats", output)
+        args += listOf("-movflags", "+faststart", output)
 
         return args.toTypedArray()
     }
@@ -127,6 +127,8 @@ class FFmpegCommandBuilder @Inject constructor() {
             FpsChoice.FPS_24 -> 24
             FpsChoice.FPS_30 -> 30
             FpsChoice.FPS_60 -> 60
+            FpsChoice.FPS_90 -> 90
+            FpsChoice.FPS_120 -> 120
         }
         return target.coerceAtMost(src.toInt().coerceAtLeast(1))
     }

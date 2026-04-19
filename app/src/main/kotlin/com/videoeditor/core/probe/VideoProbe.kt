@@ -36,7 +36,7 @@ class VideoProbe @Inject constructor(@ApplicationContext private val ctx: Contex
                 widthPx = width,
                 heightPx = height,
                 frameRate = frameRate,
-                videoBitrateBps = 0L,  // Will be estimated if needed
+                videoBitrateBps = if (durationMs > 0) (size * 8000L / durationMs) else 0L,
                 videoCodec = mime.removePrefix("video/"),
                 audioCodec = null,
                 audioChannels = null,

@@ -27,7 +27,11 @@ class OutputSizeEstimator @Inject constructor() {
         val audioKbps = if (source.audioCodec != null) s.audio.bitrateKbps else 0
         val totalKbps = videoKbps + audioKbps
         val durSec = source.durationMs / 1000.0
-        val sizeBytes = (totalKbps * 1000.0 / 8.0 * durSec).toLong() + 100_000
+        val sizeBytes = if (durSec > 0) {
+            (totalKbps * 1000.0 / 8.0 * durSec).toLong() + 100_000
+        } else {
+            maxOf(source.sizeBytes / 2, 100_000L)
+        }
 
         val ratio = if (source.sizeBytes > 0) sizeBytes.toDouble() / source.sizeBytes else 0.0
         val notes = buildList {
@@ -59,6 +63,8 @@ class OutputSizeEstimator @Inject constructor() {
             FpsChoice.FPS_24 -> 24
             FpsChoice.FPS_30 -> 30
             FpsChoice.FPS_60 -> 60
+            FpsChoice.FPS_90 -> 90
+            FpsChoice.FPS_120 -> 120
         }
         return target.coerceAtMost(src.roundToInt().coerceAtLeast(1))
     }

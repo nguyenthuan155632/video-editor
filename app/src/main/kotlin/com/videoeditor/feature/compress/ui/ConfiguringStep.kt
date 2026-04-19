@@ -175,7 +175,7 @@ fun VideoPreviewCard(
                     color = Color(0xFFB0B0B8),
                 )
                 Text(
-                    text = "${df.format(source.videoBitrateBps / 1000.0)} Mbps · ${df.format(source.sizeBytes / (1024.0 * 1024.0))} MB",
+                    text = "${df.format(source.videoBitrateBps / 1_000_000.0)} Mbps · ${df.format(source.sizeBytes / (1024.0 * 1024.0))} MB",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFFB0B0B8),
                 )
@@ -371,13 +371,15 @@ fun VideoSection(
                     com.videoeditor.feature.compress.model.FpsChoice.KEEP -> "Keep original"
                     else -> settings.fps.name.replace("FPS_", "") + " fps"
                 },
-                options = listOf("Keep original", "24 fps", "30 fps", "60 fps"),
+                options = listOf("Keep original", "24 fps", "30 fps", "60 fps", "90 fps", "120 fps"),
                 onSelect = {
                     val fps = when (it) {
                         "Keep original" -> com.videoeditor.feature.compress.model.FpsChoice.KEEP
                         "24 fps" -> com.videoeditor.feature.compress.model.FpsChoice.FPS_24
                         "30 fps" -> com.videoeditor.feature.compress.model.FpsChoice.FPS_30
                         "60 fps" -> com.videoeditor.feature.compress.model.FpsChoice.FPS_60
+                        "90 fps" -> com.videoeditor.feature.compress.model.FpsChoice.FPS_90
+                        "120 fps" -> com.videoeditor.feature.compress.model.FpsChoice.FPS_120
                         else -> com.videoeditor.feature.compress.model.FpsChoice.KEEP
                     }
                     onChange(settings.copy(fps = fps))

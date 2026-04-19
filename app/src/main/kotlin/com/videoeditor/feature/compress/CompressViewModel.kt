@@ -114,17 +114,20 @@ class CompressViewModel @Inject constructor(
                         } else state
                     }
                 },
-                onComplete = { uri, usedFallback ->
+                onComplete = { uri, sizeBytes, usedFallback ->
+                    val ratio = if (config.source.sizeBytes > 0) {
+                        sizeBytes.toDouble() / config.source.sizeBytes
+                    } else 0.0
                     _uiState.update {
                         CompressUiState.Done(
                             source = config.source,
                             output = com.videoeditor.feature.compress.model.SavedOutput(
                                 uri = uri,
                                 displayName = config.source.displayName,
-                                sizeBytes = 0,
+                                sizeBytes = sizeBytes,
                                 usedHardwareFallback = usedFallback,
                             ),
-                            ratio = 0.5,
+                            ratio = ratio,
                         )
                     }
                 },

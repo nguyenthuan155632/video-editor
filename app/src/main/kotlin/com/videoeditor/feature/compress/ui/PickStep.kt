@@ -62,17 +62,11 @@ fun PickStep(
             }
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Drop video here",
+                text = "Select from your device",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "or select from your device",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFB0B0B8),
-            )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onPick,
                 colors = ButtonDefaults.buttonColors(

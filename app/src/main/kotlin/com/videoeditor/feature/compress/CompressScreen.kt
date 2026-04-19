@@ -131,10 +131,6 @@ fun CompressScreen(
                     DoneStep(
                         output = state.output,
                         ratio = state.ratio,
-                        onDone = {
-                            viewModel.onBack()
-                            onBack()
-                        },
                     )
                 }
                 is CompressUiState.Failed -> {

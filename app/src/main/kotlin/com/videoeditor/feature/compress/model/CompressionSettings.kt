@@ -4,7 +4,7 @@ enum class VideoCodec { H264, H265 }
 enum class RateControl { CRF, CBR, VBR }
 enum class EncodingPreset { ULTRAFAST, SUPERFAST, VERYFAST, FAST, MEDIUM, SLOW, VERYSLOW }
 enum class H264Profile { BASELINE, MAIN, HIGH }
-enum class FpsChoice { KEEP, FPS_24, FPS_30, FPS_60 }
+enum class FpsChoice { KEEP, FPS_24, FPS_30, FPS_60, FPS_90, FPS_120 }
 enum class AudioChannels { MONO, STEREO }
 
 enum class ResolutionPreset(val shortEdgePx: Int, val label: String) {
