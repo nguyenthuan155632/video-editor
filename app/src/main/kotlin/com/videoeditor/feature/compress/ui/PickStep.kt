@@ -1,81 +1,65 @@
 package com.videoeditor.feature.compress.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VideoFile
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.videoeditor.core.designsys.GradientButton
+import com.videoeditor.core.designsys.GradientButtonVariant
+import com.videoeditor.core.designsys.GradientIconBadge
+import com.videoeditor.core.theme.AuroraGradients
+import com.videoeditor.core.theme.AuroraTextSecondary
 
 @Composable
-fun PickStep(
-    onPick: () -> Unit,
-) {
+fun PickStep(onPick: () -> Unit) {
+    val gradient = remember { AuroraGradients.horizontal() }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0D0D0F))
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .border(
-                        width = 2.dp,
-                        color = Color(0xFF3A3A42),
-                        shape = RoundedCornerShape(24.dp),
-                    )
-                    .background(Color(0xFF1A1A1F))
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.VideoFile,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color(0xFF5B6CFF),
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Select from your device",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
+            GradientIconBadge(
+                icon = Icons.Default.VideoFile,
+                size = 96.dp,
             )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
+            Spacer(modifier = Modifier.height(28.dp))
+            Text(
+                text = "Pick a video",
+                style = MaterialTheme.typography.displayMedium.copy(brush = gradient),
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "MP4, MOV, MKV, WebM — anything Android can read.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = AuroraTextSecondary,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            GradientButton(
+                text = "Choose video",
                 onClick = onPick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF5B6CFF),
-                ),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Text("Select video")
-            }
+                variant = GradientButtonVariant.Filled,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
