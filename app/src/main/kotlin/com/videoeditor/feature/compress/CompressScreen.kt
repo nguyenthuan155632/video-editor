@@ -103,6 +103,7 @@ fun CompressScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 AnimatedContent(
                     targetState = uiState,
+                    contentKey = { state -> state::class },
                     label = "compress-step",
                     transitionSpec = {
                         (slideInHorizontally(

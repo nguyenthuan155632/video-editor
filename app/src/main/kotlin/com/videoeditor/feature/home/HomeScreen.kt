@@ -22,7 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -91,6 +94,7 @@ private fun FeatureCardView(card: FeatureCard, onClick: (String?) -> Unit) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(if (pressed) 0.97f else 1f, label = "press-scale")
     val enabled = card.route != null
+    val scope = rememberCoroutineScope()
 
     GlassCard(
         modifier = Modifier
@@ -101,9 +105,13 @@ private fun FeatureCardView(card: FeatureCard, onClick: (String?) -> Unit) {
         contentPadding = PaddingValues(18.dp),
         onClick = if (enabled) {
             {
-                pressed = true
-                onClick(card.route)
-                pressed = false
+                scope.launch {
+                    pressed = true
+                    delay(80)
+                    pressed = false
+                    delay(20)
+                    onClick(card.route)
+                }
             }
         } else null,
     ) {
