@@ -44,12 +44,18 @@ class FFmpegCommandBuilder @Inject constructor() {
 
         when (settings.codec) {
             VideoCodec.H264 -> {
-                args += listOf("-profile:v", settings.profile.cli())
-                args += listOf("-level", h264Level(resolution?.shortEdgePx ?: source.shortEdge(), effectiveFps))
+                // Hardware encoders reject profile/level — only add for software
+                if (!useHwEncoder) {
+                    args += listOf("-profile:v", settings.profile.cli())
+                    args += listOf("-level", h264Level(resolution?.shortEdgePx ?: source.shortEdge(), effectiveFps))
+                }
             }
             VideoCodec.H265 -> {
-                args += listOf("-profile:v", "main")
-                args += listOf("-level", h265Level(resolution?.shortEdgePx ?: source.shortEdge(), effectiveFps))
+                if (!useHwEncoder) {
+                    args += listOf("-profile:v", "main")
+                    args += listOf("-level", h265Level(resolution?.shortEdgePx ?: source.shortEdge(), effectiveFps))
+                }
+                // hvc1 tag is for QuickTime/iOS compatibility — safe on both HW and SW
                 args += listOf("-tag:v", "hvc1")
             }
         }
@@ -67,6 +73,7 @@ class FFmpegCommandBuilder @Inject constructor() {
                 val kbps = settings.targetBitrateKbps
                 args += listOf("-b:v", "${kbps}k", "-minrate", "${kbps}k",
                                "-maxrate", "${kbps}k", "-bufsize", "${kbps * 2}k")
+                // x264/x265 CBR flags are software-only
                 if (!useHwEncoder) {
                     args += when (settings.codec) {
                         VideoCodec.H264 -> listOf("-x264-params", "nal-hrd=cbr")
@@ -85,9 +92,12 @@ class FFmpegCommandBuilder @Inject constructor() {
             args += listOf("-r", effectiveFps.toString())
         }
 
-        val gopFrames = (effectiveFps * settings.gopSeconds).coerceAtLeast(1)
-        args += listOf("-g", gopFrames.toString(), "-keyint_min", gopFrames.toString())
-        if (settings.rateControl == RateControl.CBR) args += listOf("-sc_threshold", "0")
+        // GOP settings — software encoders only; HW encoder handles keyframes internally
+        if (!useHwEncoder) {
+            val gopFrames = (effectiveFps * settings.gopSeconds).coerceAtLeast(1)
+            args += listOf("-g", gopFrames.toString(), "-keyint_min", gopFrames.toString())
+            if (settings.rateControl == RateControl.CBR) args += listOf("-sc_threshold", "0")
+        }
 
         if (source.audioCodec == null) {
             args += "-an"
