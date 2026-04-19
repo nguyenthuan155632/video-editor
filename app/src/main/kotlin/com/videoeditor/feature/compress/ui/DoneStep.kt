@@ -44,7 +44,8 @@ fun DoneStep(
 ) {
     val context = LocalContext.current
     val df = remember { DecimalFormat("#.#") }
-    val savedPercent = ((1.0 - 1.0 / ratio.coerceAtLeast(1.0001)) * 100).toFloat().coerceIn(0f, 99f)
+    // ratio = outputSize / sourceSize (< 1 when compressed), so saved% = (1 - ratio) * 100
+    val savedPercent = ((1.0 - ratio.coerceIn(0.0, 1.0)) * 100).toFloat().coerceIn(0f, 99f)
     val gradientH = remember { AuroraGradients.horizontal() }
     val gradientD = remember { AuroraGradients.diagonal() }
 
@@ -77,7 +78,8 @@ fun DoneStep(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             val newMb = output.sizeBytes / (1024.0 * 1024.0)
-            val originalMb = newMb * ratio
+            // ratio = output/source → original = output / ratio = source
+            val originalMb = if (ratio > 0) newMb / ratio else newMb
             StatPill(label = "Original", value = "${df.format(originalMb)} MB")
             StatPill(label = "New", value = "${df.format(newMb)} MB")
         }

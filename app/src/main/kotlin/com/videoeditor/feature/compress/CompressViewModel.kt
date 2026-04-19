@@ -107,10 +107,10 @@ class CompressViewModel @Inject constructor(
             workLauncher.launch(
                 uri = config.source.uri,
                 settings = config.settings,
-                onProgress = { progress ->
+                onProgress = { encodeProgress ->
                     _uiState.update { state ->
                         if (state is CompressUiState.Running) {
-                            state.copy(progress = state.progress.copy(percent = progress))
+                            state.copy(progress = encodeProgress)
                         } else state
                     }
                 },

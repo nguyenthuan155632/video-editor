@@ -7,6 +7,7 @@ import com.videoeditor.core.probe.VideoProbe
 import com.videoeditor.core.storage.MediaStoreSaver
 import com.videoeditor.core.storage.ScopedTempDir
 import com.videoeditor.feature.compress.model.CompressionSettings
+import com.videoeditor.feature.compress.model.EncodeProgress
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,7 +28,7 @@ class CompressWorkLauncher @Inject constructor(
     fun launch(
         uri: android.net.Uri,
         settings: CompressionSettings,
-        onProgress: (Float) -> Unit,
+        onProgress: (EncodeProgress) -> Unit,
         onComplete: (android.net.Uri, Long, Boolean) -> Unit,
         onError: (String) -> Unit,
     ) {
@@ -48,7 +49,7 @@ class CompressWorkLauncher @Inject constructor(
                             outputPath = outputFile.absolutePath,
                             totalDurationMs = source.durationMs,
                             onProgress = { encodeProgress ->
-                                onProgress(encodeProgress.percent)
+                                onProgress(encodeProgress)
                             },
                         )
                     } catch (e: Exception) {
@@ -67,7 +68,7 @@ class CompressWorkLauncher @Inject constructor(
                         val savedUri = mediaStoreSaver.saveToGallery(outputFile, source.displayName)
                         scopedTempDir.cleanup(workDir)
                         scopedTempDir.cleanup(cachedFile.parentFile!!)
-                        onProgress(1f)
+                        onProgress(EncodeProgress(percent = 1f))
                         onComplete(savedUri, outputSize, result.usedHardwareFallback)
                     }
                     is RunResult.Cancelled -> {
