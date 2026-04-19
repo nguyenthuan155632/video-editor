@@ -44,7 +44,7 @@ private fun capResolution(source: ProbeResult, target: ResolutionPreset): Resolu
 }
 
 private fun capFps(source: ProbeResult, target: Int): FpsChoice {
-    val src = if (source.frameRate.isNaN() || source.frameRate <= 0) 30.0 else source.frameRate
+    val src = source.frameRate.takeIf { it.isFinite() && it > 0 } ?: 30.0
     return if (src <= target) FpsChoice.KEEP else when (target) {
         24 -> FpsChoice.FPS_24
         30 -> FpsChoice.FPS_30

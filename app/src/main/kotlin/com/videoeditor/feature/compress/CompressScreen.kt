@@ -4,10 +4,16 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -54,17 +61,31 @@ fun CompressScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFF0D0D0F),
         topBar = {
             TopAppBar(
-                title = { Text("Compress Video") },
+                title = {
+                    Text(
+                        "Compress Video",
+                        color = Color.White,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         viewModel.onBack()
                         onBack()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                        )
                     }
                 },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF0D0D0F),
+                    titleContentColor = Color.White,
+                ),
             )
         },
     ) { padding ->
@@ -117,10 +138,22 @@ fun CompressScreen(
                     )
                 }
                 is CompressUiState.Failed -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Text("Error: ${state.reason}")
-                        androidx.compose.material3.Button(onClick = viewModel::onDismissError) {
-                            Text("Dismiss")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFF0D0D0F))
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Error: ${state.reason}", color = Color.White)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            androidx.compose.material3.Button(
+                                onClick = viewModel::onDismissError,
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B6CFF)),
+                            ) {
+                                Text("Dismiss")
+                            }
                         }
                     }
                 }

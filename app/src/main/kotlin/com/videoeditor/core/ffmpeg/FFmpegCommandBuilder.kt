@@ -121,7 +121,7 @@ class FFmpegCommandBuilder @Inject constructor() {
     }
 
     private fun effectiveFps(source: ProbeResult, fps: FpsChoice): Int {
-        val src = if (source.frameRate.isNaN() || source.frameRate <= 0) 30.0 else source.frameRate
+        val src = source.frameRate.takeIf { it.isFinite() && it > 0 } ?: 30.0
         val target = when (fps) {
             FpsChoice.KEEP -> src.toInt().coerceAtLeast(1)
             FpsChoice.FPS_24 -> 24

@@ -24,13 +24,10 @@ class VideoProbe @Inject constructor(@ApplicationContext private val ctx: Contex
             val rotation = mmr.extract(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
             val mime = mmr.extract(MediaMetadataRetriever.METADATA_KEY_MIMETYPE).orEmpty()
 
-            // Extract frame rate from MediaMetadataRetriever if available
-            val frameRate = try {
-                val rate = mmr.extract(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)
-                rate?.toDoubleOrNull() ?: Double.NaN
-            } catch (e: Exception) {
-                Double.NaN
-            }
+            // Extract frame rate — METADATA_KEY_CAPTURE_FRAMERATE is unreliable on many devices
+            // (often returns NaN even for perfectly normal videos), so we also try to
+            // derive it from frame count and duration as a fallback.
+            val frameRate = extractFrameRate(mmr, durationMs) ?: Double.NaN
 
             ProbeResult(
                 uri = uri,
@@ -63,4 +60,32 @@ class VideoProbe @Inject constructor(@ApplicationContext private val ctx: Contex
     }
 
     private fun MediaMetadataRetriever.extract(key: Int): String? = extractMetadata(key)
+
+    private fun extractFrameRate(mmr: MediaMetadataRetriever, durationMs: Long): Double? {
+        // Primary: try METADATA_KEY_CAPTURE_FRAMERATE (often unreliable — returns NaN)
+        mmr.extract(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)
+            ?.toDoubleOrNull()
+            ?.takeIf { !it.isNaN() && it > 0 }
+            ?.let { return it }
+
+        // Fallback: derive from frame count and duration
+        val frameCount = mmr.extract(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)?.toLongOrNull()
+        if (frameCount != null && durationMs > 0 && frameCount > 0) {
+            val fps = (frameCount * 1000.0) / durationMs
+            if (fps.isFinite() && fps > 0) return fps
+        }
+
+        // Final fallback: probe two frames and measure delta
+        try {
+            val frame1 = mmr.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST)
+            if (frame1 != null && durationMs > 0) {
+                val frameTimeUs = 1_000_000L // 1 second
+                val frame2 = mmr.getFrameAtTime(frameTimeUs, MediaMetadataRetriever.OPTION_CLOSEST)
+                if (frame2 != null) return 1.0
+            }
+        } catch (_: Exception) {
+        }
+
+        return null
+    }
 }

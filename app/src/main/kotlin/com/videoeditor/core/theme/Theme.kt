@@ -8,6 +8,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val LightScheme = lightColorScheme(
@@ -18,7 +19,14 @@ private val LightScheme = lightColorScheme(
 private val DarkScheme = darkColorScheme(
     primary = IndigoSeed,
     secondary = AccentTeal,
-    background = SurfaceDark,
+    background = Color(0xFF0D0D0F),
+    surface = Color(0xFF0D0D0F),
+    surfaceVariant = Color(0xFF1A1A1F),
+    surfaceContainerLow = Color(0xFF1A1A1F),
+    surfaceContainerHigh = Color(0xFF242429),
+    onSurface = Color(0xFFFFFFFF),
+    onSurfaceVariant = Color(0xFFB0B0B8),
+    outline = Color(0xFF3A3A42),
 )
 
 @Composable
