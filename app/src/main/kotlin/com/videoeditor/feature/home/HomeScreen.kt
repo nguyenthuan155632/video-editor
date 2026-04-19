@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -75,7 +78,11 @@ fun HomeScreen(onOpenFeature: (String) -> Unit) {
 @Composable
 private fun HomeHero() {
     val gradient = remember { AuroraGradients.horizontal() }
-    Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 56.dp, bottom = 20.dp)) {
+    Column(
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp),
+    ) {
         Text(
             text = "Video Editor",
             style = MaterialTheme.typography.displayLarge.copy(brush = gradient),
