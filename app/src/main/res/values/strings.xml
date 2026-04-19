@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Video Editor</string>
+    <string name="home_title">Video Editor</string>
+    <string name="home_section_tools">Tools</string>
+    <string name="feature_compress_title">Compress</string>
+    <string name="feature_compress_subtitle">Shrink size</string>
+    <string name="feature_trim_title">Trim</string>
+    <string name="feature_convert_title">Convert</string>
+    <string name="feature_audio_title">Audio</string>
+    <string name="feature_resize_title">Resize</string>
+    <string name="feature_coming_soon">Coming soon</string>
+</resources>
