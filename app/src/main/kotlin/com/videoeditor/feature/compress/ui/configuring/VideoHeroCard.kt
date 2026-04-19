@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.videoeditor.core.designsys.GlassCard
@@ -21,7 +22,7 @@ import java.text.DecimalFormat
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VideoHeroCard(source: ProbeResult, modifier: Modifier = Modifier) {
-    val df = DecimalFormat("#.##")
+    val df = remember { DecimalFormat("#.##") }
     GlassCard(modifier = modifier.fillMaxWidth()) {
         Column {
             Text(

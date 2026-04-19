@@ -39,7 +39,7 @@ fun RunningStep(
     progress: EncodeProgress,
     onCancel: () -> Unit,
 ) {
-    val df = DecimalFormat("#.#")
+    val df = remember { DecimalFormat("#.#") }
     val percent = (progress.percent * 100).toInt()
     val etaText = progress.etaSeconds?.let { eta ->
         val mins = eta / 60

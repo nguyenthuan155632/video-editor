@@ -43,7 +43,7 @@ fun DoneStep(
     ratio: Double,
 ) {
     val context = LocalContext.current
-    val df = DecimalFormat("#.#")
+    val df = remember { DecimalFormat("#.#") }
     val savedPercent = ((1.0 - 1.0 / ratio.coerceAtLeast(1.0001)) * 100).toFloat().coerceIn(0f, 99f)
     val gradientH = remember { AuroraGradients.horizontal() }
     val gradientD = remember { AuroraGradients.diagonal() }
@@ -93,7 +93,7 @@ fun DoneStep(
                         setDataAndType(output.uri, "video/*")
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    context.startActivity(intent)
+                    runCatching { context.startActivity(intent) }
                 },
                 variant = GradientButtonVariant.Filled,
                 modifier = Modifier.weight(1f),
@@ -106,7 +106,7 @@ fun DoneStep(
                         putExtra(Intent.EXTRA_STREAM, output.uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    context.startActivity(Intent.createChooser(shareIntent, "Share video"))
+                    runCatching { context.startActivity(Intent.createChooser(shareIntent, "Share video")) }
                 },
                 variant = GradientButtonVariant.Ghost,
                 modifier = Modifier.weight(1f),

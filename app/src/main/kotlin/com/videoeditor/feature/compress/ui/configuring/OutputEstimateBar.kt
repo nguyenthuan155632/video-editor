@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,7 +28,7 @@ fun OutputEstimateBar(
     onCompress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val df = DecimalFormat("#.#")
+    val df = remember { DecimalFormat("#.#") }
     val targetMb = (estimate.sizeBytes / (1024.0 * 1024.0)).toFloat()
     val animatedMb by animateFloatAsState(targetMb, label = "est-mb")
 
