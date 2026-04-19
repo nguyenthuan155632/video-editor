@@ -1,5 +1,6 @@
 package com.videoeditor.feature.compress.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
+import com.videoeditor.core.theme.AuroraBgBase
 import com.videoeditor.feature.compress.model.CompressUiState
 import com.videoeditor.feature.compress.model.CompressionSettings
 import com.videoeditor.feature.compress.model.SectionId
@@ -42,7 +45,7 @@ fun ConfiguringStep(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 140.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 160.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             VideoHeroCard(source = state.source)
@@ -70,11 +73,23 @@ fun ConfiguringStep(
                 onChange = onSettingsChanged,
             )
         }
+        // Gradient scrim — fades content into the bar so the overlap is never jarring
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .height(100.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(AuroraBgBase.copy(alpha = 0f), AuroraBgBase.copy(alpha = 0.95f)),
+                    ),
+                ),
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
         ) {
             OutputEstimateBar(
                 estimate = state.estimate,

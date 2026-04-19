@@ -14,11 +14,12 @@ import com.videoeditor.core.theme.glass
 fun GlassCard(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 24.dp,
+    surfaceAlpha: Float = 0.55f,
     contentPadding: PaddingValues = PaddingValues(20.dp),
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    val base = modifier.glass(cornerRadius = cornerRadius)
+    val base = modifier.glass(cornerRadius = cornerRadius, surfaceAlpha = surfaceAlpha)
     val withClick = if (onClick != null) base.clickable(onClick = onClick) else base
     Box(modifier = withClick.padding(contentPadding)) {
         content()

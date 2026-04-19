@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,9 +32,9 @@ fun OutputEstimateBar(
     val animatedMb by animateFloatAsState(targetMb, label = "est-mb")
 
     GlassCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = modifier.fillMaxWidth(),
+        // Fully opaque so scrolled content never bleeds through
+        surfaceAlpha = 0.97f,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
