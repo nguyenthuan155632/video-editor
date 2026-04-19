@@ -38,12 +38,13 @@ fun AuroraFab(
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed) 0.95f else 1f, label = "fab-scale")
     val shape = RoundedCornerShape(28.dp)
+    val fabBrush = remember { AuroraGradients.horizontal() }
     Row(
         modifier = modifier
             .scale(scale)
             .shadow(elevation = 18.dp, shape = shape, ambientColor = AuroraMagenta, spotColor = AuroraMagenta)
             .clip(shape)
-            .background(AuroraGradients.horizontal(), shape)
+            .background(fabBrush, shape)
             .height(56.dp)
             .clickable(interactionSource = interaction, indication = null, onClick = onClick)
             .padding(horizontal = 22.dp),

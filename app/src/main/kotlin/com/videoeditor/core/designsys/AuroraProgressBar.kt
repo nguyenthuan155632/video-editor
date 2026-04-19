@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -54,6 +55,7 @@ fun AuroraProgressRing(
     strokeWidth: Dp = 14.dp,
 ) {
     val animated by animateFloatAsState(targetValue = fraction.coerceIn(0f, 1f), label = "ring-progress")
+    val progressBrush = remember { AuroraGradients.diagonal() }
     Canvas(modifier = modifier.size(diameter)) {
         val stroke = strokeWidth.toPx()
         val arcSize = Size(size.width - stroke, size.height - stroke)
@@ -67,14 +69,16 @@ fun AuroraProgressRing(
             size = arcSize,
             style = Stroke(width = stroke, cap = StrokeCap.Round),
         )
-        drawArc(
-            brush = AuroraGradients.diagonal(),
-            startAngle = -90f,
-            sweepAngle = 360f * animated,
-            useCenter = false,
-            topLeft = topLeft,
-            size = arcSize,
-            style = Stroke(width = stroke, cap = StrokeCap.Round),
-        )
+        if (animated > 0f) {
+            drawArc(
+                brush = progressBrush,
+                startAngle = -90f,
+                sweepAngle = 360f * animated,
+                useCenter = false,
+                topLeft = topLeft,
+                size = arcSize,
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
+            )
+        }
     }
 }

@@ -19,7 +19,7 @@ fun GlassCard(
     content: @Composable () -> Unit,
 ) {
     val base = modifier.glass(cornerRadius = cornerRadius)
-    val withClick = if (onClick != null) base.clickable { onClick() } else base
+    val withClick = if (onClick != null) base.clickable(onClick = onClick) else base
     Box(modifier = withClick.padding(contentPadding)) {
         content()
     }
