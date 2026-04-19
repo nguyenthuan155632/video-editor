@@ -23,7 +23,7 @@ data class CompressionSettings(
     val preset: EncodingPreset = EncodingPreset.MEDIUM,
     val profile: H264Profile = H264Profile.HIGH,
     val gopSeconds: Int = 2,
-    val useHardwareAccel: Boolean = true,
+    val useHardwareAccel: Boolean = false,
     val audio: AudioSettings = AudioSettings(),
 )
 

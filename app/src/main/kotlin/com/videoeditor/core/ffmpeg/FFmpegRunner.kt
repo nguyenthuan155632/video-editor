@@ -1,17 +1,14 @@
 package com.videoeditor.core.ffmpeg
 
+import android.util.Log
 import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.FFmpegSession
-import com.arthenica.ffmpegkit.FFmpegSessionCompleteCallback
 import com.arthenica.ffmpegkit.ReturnCode
-import com.arthenica.ffmpegkit.Statistics
-import com.arthenica.ffmpegkit.StatisticsCallback
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.resume
+
+private const val TAG = "FFmpegRunner"
 
 sealed class RunResult {
     data class Success(val usedHardwareFallback: Boolean = false) : RunResult()
@@ -32,10 +29,8 @@ class FFmpegRunner @Inject constructor(
     private var lastSessionId: Long? = null
     private var lastUsedHwFallback = false
 
-    private var progressCallback: ((com.videoeditor.feature.compress.model.EncodeProgress) -> Unit)? = null
-
     fun setProgressCallback(cb: (com.videoeditor.feature.compress.model.EncodeProgress) -> Unit) {
-        progressCallback = cb
+        // Reserved for future progress extraction from FFmpeg output
     }
 
     suspend fun execute(
@@ -49,31 +44,39 @@ class FFmpegRunner @Inject constructor(
 
         suspend fun run(hw: Boolean): RunResult {
             val args = commandBuilder.build(source, settings, inputPath, outputPath, hw)
-            // This fork uses executeWithArguments (String[]) not execute(String)
+            val command = args.joinToString(" ")
+
+            Log.d(TAG, "Running: ffmpeg $command")
+
             val session = FFmpegKit.executeWithArguments(args)
             lastSessionId = session.sessionId
 
             val rc = session.returnCode
-            val allStats = session.allStatistics
-            if (allStats.isNotEmpty()) {
-                val last = allStats.last()
-                val prog = progressParser.parse(
-                    "out_time_us=${(last.time * 1000).toLong()}\nframe=${last.videoFrameNumber}\nfps=${last.videoFps}",
-                    totalDurationMs,
-                )
-                if (prog != null) progressCallback?.invoke(prog)
-            }
+            val output = session.output
+            val failStack = session.failStackTrace
+
+            Log.d(TAG, "FFmpeg exit code: ${rc?.value}, output: $output, failStack: $failStack")
 
             return when {
                 ReturnCode.isSuccess(rc) -> RunResult.Success(false)
                 ReturnCode.isCancel(rc) -> RunResult.Cancelled(false)
-                else -> RunResult.Failed(session.failStackTrace ?: "Encoding failed", false)
+                else -> {
+                    val reason = buildString {
+                        append(failStack ?: "Unknown error")
+                        if (!output.isNullOrBlank()) {
+                            append(". FFmpeg output: ")
+                            append(output.takeLast(500))
+                        }
+                    }
+                    RunResult.Failed(reason.take(500), false)
+                }
             }
         }
 
-        // Try hardware first
+        // Try hardware first, fall back to software
         var result = run(true)
         if (result is RunResult.Failed && settings.useHardwareAccel) {
+            Log.d(TAG, "Hardware encode failed, falling back to software: ${result.reason}")
             lastSessionId?.let { FFmpegKit.cancel(it) }
             lastUsedHwFallback = true
             result = run(false)
