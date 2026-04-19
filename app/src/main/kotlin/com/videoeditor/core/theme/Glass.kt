@@ -17,6 +17,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * Glassmorphism surface treatment.
+ *
+ * API 31+: applies RenderEffect blur to the background fill layer so the surface appears frosted.
+ * Note: Compose does not expose true backdrop-blur (blurring what's behind the window);
+ * this blurs the fill layer itself. The visual result is a subtle depth cue, not a literal
+ * frosted-glass see-through. A solid translucent fill achieves the same perceived effect.
+ *
+ * API 26–30: plain translucent fill + gradient hairline border (no blur, zero perf cost).
+ */
 fun Modifier.glass(
     cornerRadius: Dp = 24.dp,
     surfaceAlpha: Float = 0.55f,
@@ -31,19 +41,22 @@ fun Modifier.glass(
             AuroraCyan.copy(alpha = borderAlpha),
         ),
     )
-    val blurredLayer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Modifier.graphicsLayer {
-            renderEffect = RenderEffect
-                .createBlurEffect(blurRadius.toPx(), blurRadius.toPx(), Shader.TileMode.DECAL)
-                .asComposeRenderEffect()
-        }
-    } else {
+    // Apply blur only to the background fill, keeping child content unblurred.
+    val bgModifier: Modifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         Modifier
+            .graphicsLayer {
+                renderEffect = RenderEffect
+                    .createBlurEffect(blurRadius.toPx(), blurRadius.toPx(), Shader.TileMode.DECAL)
+                    .asComposeRenderEffect()
+            }
+            .background(AuroraSurface1.copy(alpha = surfaceAlpha), shape)
+    } else {
+        Modifier.background(AuroraSurface1.copy(alpha = surfaceAlpha), shape)
     }
+
     this
         .clip(shape)
-        .then(blurredLayer)
-        .background(AuroraSurface1.copy(alpha = surfaceAlpha), shape)
+        .then(bgModifier)
         .drawWithContent {
             drawContent()
             drawRoundRect(
