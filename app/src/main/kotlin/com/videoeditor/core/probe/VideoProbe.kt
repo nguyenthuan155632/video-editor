@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.antonkarpenko.ffmpegkit.FFprobeKit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,6 +29,8 @@ class VideoProbe @Inject constructor(@ApplicationContext private val ctx: Contex
             // (often returns NaN even for perfectly normal videos), so we also try to
             // derive it from frame count and duration as a fallback.
             val frameRate = extractFrameRate(mmr, durationMs) ?: Double.NaN
+            val (colorRange, colorSpace) = probeColorInfo(uri)
+            val hasAudio = mmr.extract(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == "yes"
 
             ProbeResult(
                 uri = uri,
@@ -38,10 +41,12 @@ class VideoProbe @Inject constructor(@ApplicationContext private val ctx: Contex
                 frameRate = frameRate,
                 videoBitrateBps = if (durationMs > 0) (size * 8000L / durationMs) else 0L,
                 videoCodec = mime.removePrefix("video/"),
-                audioCodec = null,
+                audioCodec = if (hasAudio) "aac" else null,
                 audioChannels = null,
                 sizeBytes = size,
                 rotationDegrees = rotation,
+                colorRange = colorRange,
+                colorSpace = colorSpace,
             )
         } finally {
             mmr.release()
@@ -57,6 +62,25 @@ class VideoProbe @Inject constructor(@ApplicationContext private val ctx: Contex
             }
         }
         return (uri.lastPathSegment ?: "video") to 0L
+    }
+
+    private fun probeColorInfo(uri: Uri): Pair<ColorRange, String> {
+        return try {
+            val fd = ctx.contentResolver.openFileDescriptor(uri, "r") ?: return ColorRange.UNKNOWN to ""
+            val path = "/proc/self/fd/${fd.fd}"
+            val info = FFprobeKit.getMediaInformation(path)
+            fd.close()
+            val stream = info?.mediaInformation?.streams?.firstOrNull { it.type == "video" }
+            val colorRange = when (stream?.getStringProperty("color_range")) {
+                "pc", "full", "jpeg" -> ColorRange.FULL
+                "tv", "limited", "mpeg" -> ColorRange.LIMITED
+                else -> ColorRange.UNKNOWN
+            }
+            val colorSpace = stream?.getStringProperty("color_space").orEmpty()
+            colorRange to colorSpace
+        } catch (_: Throwable) {
+            ColorRange.UNKNOWN to ""
+        }
     }
 
     private fun MediaMetadataRetriever.extract(key: Int): String? = extractMetadata(key)

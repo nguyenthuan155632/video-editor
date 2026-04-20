@@ -10,7 +10,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://github.com/nicholasnguyen/ffmpeg-kit-maven/raw/main/releases") }
     }
 }
 rootProject.name = "VideoEditor"

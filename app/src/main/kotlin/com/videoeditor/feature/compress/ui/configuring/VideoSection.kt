@@ -126,28 +126,32 @@ fun VideoSection(
                             onChange(settings.copy(fps = fps))
                         },
                     )
-                    AuroraDropdownRow(
-                        label = "Encoding",
-                        value = settings.preset.name.lowercase().replaceFirstChar { it.uppercase() },
-                        options = EncodingPreset.entries.map {
-                            it.name.lowercase().replaceFirstChar { c -> c.uppercase() }
-                        },
-                        onSelect = {
-                            onChange(settings.copy(preset = EncodingPreset.valueOf(it.uppercase())))
-                        },
-                    )
-                    AuroraDropdownRow(
-                        label = "Profile",
-                        value = settings.profile.name,
-                        options = H264Profile.entries.map { it.name },
-                        onSelect = { onChange(settings.copy(profile = H264Profile.valueOf(it))) },
-                    )
-                    AuroraDropdownRow(
-                        label = "GOP",
-                        value = "${settings.gopSeconds}s",
-                        options = listOf("1s", "2s", "5s", "10s"),
-                        onSelect = { onChange(settings.copy(gopSeconds = it.replace("s", "").toInt())) },
-                    )
+                    if (!settings.useHardwareAccel) {
+                        AuroraDropdownRow(
+                            label = "Encoding",
+                            value = settings.preset.name.lowercase().replaceFirstChar { it.uppercase() },
+                            options = EncodingPreset.entries.map {
+                                it.name.lowercase().replaceFirstChar { c -> c.uppercase() }
+                            },
+                            onSelect = {
+                                onChange(settings.copy(preset = EncodingPreset.valueOf(it.uppercase())))
+                            },
+                        )
+                        if (settings.codec == VideoCodec.H264) {
+                            AuroraDropdownRow(
+                                label = "Profile",
+                                value = settings.profile.name,
+                                options = H264Profile.entries.map { it.name },
+                                onSelect = { onChange(settings.copy(profile = H264Profile.valueOf(it))) },
+                            )
+                        }
+                        AuroraDropdownRow(
+                            label = "GOP",
+                            value = "${settings.gopSeconds}s",
+                            options = listOf("1s", "2s", "5s", "10s"),
+                            onSelect = { onChange(settings.copy(gopSeconds = it.replace("s", "").toInt())) },
+                        )
+                    }
                 }
             }
         }

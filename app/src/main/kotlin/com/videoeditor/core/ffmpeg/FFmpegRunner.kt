@@ -1,10 +1,10 @@
 package com.videoeditor.core.ffmpeg
 
 import android.util.Log
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.LogCallback
-import com.arthenica.ffmpegkit.ReturnCode
-import com.arthenica.ffmpegkit.StatisticsCallback
+import com.antonkarpenko.ffmpegkit.FFmpegKit
+import com.antonkarpenko.ffmpegkit.LogCallback
+import com.antonkarpenko.ffmpegkit.ReturnCode
+import com.antonkarpenko.ffmpegkit.StatisticsCallback
 import com.videoeditor.feature.compress.model.EncodeProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -95,8 +95,8 @@ class FFmpegRunner @Inject constructor(
             lastUsedHwFallback = hw
         }
 
-        // Try hardware first, fall back to software
-        var result = run(true)
+        // Only use hardware when the user has opted in; always fall back to software on failure.
+        var result = if (settings.useHardwareAccel) run(true) else run(false)
         if (result is RunResult.Failed && settings.useHardwareAccel) {
             Log.d(TAG, "Hardware encode failed, falling back to software: ${result.reason}")
             lastSessionId?.let { FFmpegKit.cancel(it) }

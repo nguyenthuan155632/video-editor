@@ -45,7 +45,7 @@ fun AdvancedSection(
                         Text("Hardware acceleration", color = AuroraTextPrimary)
                         Text(
                             text = if (settings.useHardwareAccel) "Uses HW encoder when available"
-                            else "Software encoding only",
+                            else "Software encoding (libx264/libx265)",
                             style = MaterialTheme.typography.bodySmall,
                             color = AuroraTextSecondary,
                         )

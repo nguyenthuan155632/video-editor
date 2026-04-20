@@ -1,5 +1,6 @@
 package com.videoeditor.core.ffmpeg
 
+import com.videoeditor.core.probe.ColorRange
 import com.videoeditor.core.probe.ProbeResult
 import com.videoeditor.feature.compress.model.AudioChannels
 import com.videoeditor.feature.compress.model.CompressionSettings
@@ -22,19 +23,19 @@ class FFmpegCommandBuilder @Inject constructor() {
         output: String,
         useHwEncoder: Boolean = settings.useHardwareAccel,
     ): Array<String> {
-        val args = mutableListOf("-y", "-hide_banner", "-loglevel", "warning", "-i", input)
+        // -ignore_unknown: skip streams with codecs FFmpeg can't decode (e.g. Apple spatial audio apac)
+        // without it, FFmpeg aborts when it can't get codec parameters for an unknown stream.
+        val args = mutableListOf("-y", "-hide_banner", "-loglevel", "warning",
+            "-ignore_unknown", "-i", input)
+
+        // Explicitly map only first video + first audio — skips spatial/secondary audio tracks.
+        args += listOf("-map", "0:v:0", "-map", "0:a:0?")
 
         val effectiveFps = effectiveFps(source, settings.fps)
         val resolution = effectiveResolution(source, settings.resolution)
 
-        if (resolution != null) {
-            val isLandscape = source.widthPx >= source.heightPx
-            val scale = if (isLandscape)
-                "scale=-2:${resolution.shortEdgePx}:flags=lanczos"
-            else
-                "scale=${resolution.shortEdgePx}:-2:flags=lanczos"
-            args += listOf("-vf", scale)
-        }
+        val vf = buildVideoFilter(source, resolution, useHwEncoder)
+        if (vf != null) args += listOf("-vf", vf)
 
         args += videoCodecArgs(settings.codec, useHwEncoder)
 
@@ -52,7 +53,6 @@ class FFmpegCommandBuilder @Inject constructor() {
             }
             VideoCodec.H265 -> {
                 if (!useHwEncoder) {
-                    args += listOf("-profile:v", "main")
                     args += listOf("-level", h265Level(resolution?.shortEdgePx ?: source.shortEdge(), effectiveFps))
                 }
                 // hvc1 tag is for QuickTime/iOS compatibility — safe on both HW and SW
@@ -164,6 +164,41 @@ class FFmpegCommandBuilder @Inject constructor() {
         val crfFactor = Math.pow(2.0, (23 - crf) / 6.0)
         val fpsFactor = fps / 30.0
         return (base * crfFactor * fpsFactor).toInt().coerceIn(200, 200_000)
+    }
+
+    private fun buildVideoFilter(source: ProbeResult, resolution: ResolutionPreset?, useHwEncoder: Boolean): String? {
+        val isHdr = source.colorSpace == "bt2020nc" || source.colorSpace == "bt2020c"
+        val needsRangeConvert = source.colorRange == ColorRange.FULL && !isHdr
+
+        // SW encoders (libx264/libx265) only support 8-bit yuv420p.
+        // format=yuv420p must be in the filter chain — not just -pix_fmt — so the
+        // 10-bit→8-bit conversion happens inside the filter graph before the encoder sees it.
+        val needsPixFmt = !useHwEncoder
+
+        val filters = mutableListOf<String>()
+
+        if (needsRangeConvert && resolution != null) {
+            val isLandscape = source.widthPx >= source.heightPx
+            val sizeArgs = if (isLandscape) "w=-2:h=${resolution.shortEdgePx}:filter=lanczos:"
+                           else "w=${resolution.shortEdgePx}:h=-2:filter=lanczos:"
+            filters += "zscale=${sizeArgs}rangein=pc:range=tv"
+        } else if (needsRangeConvert) {
+            filters += "zscale=rangein=pc:range=tv"
+        } else if (resolution != null) {
+            val isLandscape = source.widthPx >= source.heightPx
+            filters += if (isLandscape) "scale=-2:${resolution.shortEdgePx}:flags=lanczos"
+                        else "scale=${resolution.shortEdgePx}:-2:flags=lanczos"
+        }
+
+        if (needsPixFmt) {
+            // A bare format=yuv420p with no upstream filter causes the graph input node to
+            // initialize with csp:gbr, then mismatch against the incoming bt2020nc frames.
+            // An identity scale anchors the colorspace before the format conversion.
+            if (filters.isEmpty()) filters += "scale=iw:ih"
+            filters += "format=yuv420p"
+        }
+
+        return if (filters.isEmpty()) null else filters.joinToString(",")
     }
 
     private fun ProbeResult.shortEdge() = minOf(widthPx, heightPx)

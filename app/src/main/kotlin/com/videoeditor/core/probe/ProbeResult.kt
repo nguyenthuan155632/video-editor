@@ -15,6 +15,8 @@ data class ProbeResult(
     val audioChannels: Int?,
     val sizeBytes: Long,
     val rotationDegrees: Int,
+    val colorRange: ColorRange = ColorRange.UNKNOWN,
+    val colorSpace: String = "",
 ) {
     fun shortEdge(): Int = minOf(widthPx, heightPx)
 }
